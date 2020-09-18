@@ -134,6 +134,26 @@ server.use((ctx) => {
 
 }); 
 
+const pedidos = {
+    id: "001",
+    produtos: [],
+    status: "processando",
+    deletado: false,
+}
+
+const listaDePedidos = {}
+
+server.use((ctx) => {
+    const path = ctx.url;
+    const method = ctx.method;
+    if(path === '/pedidos'){
+        
+    }
+
+
+});
+
+
 
 
 
