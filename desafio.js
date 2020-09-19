@@ -1,5 +1,7 @@
+const { ESTALE } = require("constants");
 const koa = require("koa");
 const bodyparser = require('koa-bodyparser');
+const { isRegExp } = require("util");
 const server = new koa();
 
 server.use(bodyparser());
@@ -85,7 +87,51 @@ const atualizarQuantidade = (index, qtd) => {
 
 }
 
+const pedido = {
+    id: "001",
+    produtos: "canetas",
+    valor: 1.50,
+    status: "processando",
+    deletado: false
+}
+const listaDePedidos = [{
+    id: "001",
+    produtos: "canetas",
+    valor: 1.50,
+    status: "processando",
+    deletado: false,
+}];
 
+const obterListaDePedidos = () => {
+    const pedidosSemDeletar = []
+    listaDePedidos.forEach(elemento => {
+        if (elemento.deletado === false) {
+            pedidosSemDeletar.push(elemento);
+        }
+    });
+    return pedidosSemDeletar;
+};
+
+const adicionarPedidos = (pedidos) => {
+    const novoPedido = {
+            id: "001",
+            produtos: "canetas",
+            valor: 1.50,
+            status: "processando",
+            deletado: false
+        };
+    listaDePedidos.push(novoPedido);
+    return novoPedido;
+};
+
+const listarUmPedido = (index) => {
+    const pedidoListado = listaDePedidos[index];
+    if (pedido) {
+        return pedidoListado
+    } else {
+        return null
+    }
+}
        
 
 
@@ -98,7 +144,7 @@ server.use((ctx) => {
         } else if (method === 'POST'){
             const produto = adicionarProdutos(ctx.request.body);
             ctx.body = produto;
-            }
+        }
     } else if (path.includes('/produtos/')) {
         const pathQuebrado = path.split('/');
         if(pathQuebrado[1] === 'produtos'){
@@ -127,34 +173,28 @@ server.use((ctx) => {
                 }
             }
         }
-    } else {
+    } else if(path === '/pedidos'){
+        if(method === 'GET'){
+            ctx.body = obterListaDePedidos();
+        } else if (method === 'POST'){
+            const pedidos = adicionarPedidos(ctx.request.body);
+            ctx.body = pedidos;
+        }else if (path.includes('/pedidos/')){
+            const pathQuebrado2 = path.split('/');
+            if(pathQuebrado2[1] === 'pedidos'){
+                const index = pathQuebrado2[2];
+                if(method === 'GET'){ 
+                    if(index){
+                        ctx.body = listarUmPedido(index);
+                    }                 
+                }
+            }               
+        }
+    }else{
         ctx.status = 404;
         ctx.body = "Não encontrado!"
     }
 
 }); 
 
-const pedidos = {
-    id: "001",
-    produtos: [],
-    status: "processando",
-    deletado: false,
-}
-
-const listaDePedidos = {}
-
-server.use((ctx) => {
-    const path = ctx.url;
-    const method = ctx.method;
-    if(path === '/pedidos'){
-        
-    }
-
-
-});
-
-
-
-
-
-server.listen(9000, () => console.log("Rodando na porta 8081!"));
+server.listen(8081, () => console.log("Rodando na porta 8081!"));
