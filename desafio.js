@@ -173,23 +173,23 @@ server.use((ctx) => {
                 }
             }
         }
-    } else if(path === '/pedidos'){
+    } else if(path.includes('/pedidos')){
         if(method === 'GET'){
-            ctx.body = obterListaDePedidos();
+            
+            const pathQuebrado2 = path.split('/');
+              const index = pathQuebrado2[2];
+              if(index){
+                ctx.body = listarUmPedido(index);
+              }else {
+                ctx.body = obterListaDePedidos();
+              }
+
         } else if (method === 'POST'){
             const pedidos = adicionarPedidos(ctx.request.body);
             ctx.body = pedidos;
-        }else if (path.includes('/pedidos/')){
-            const pathQuebrado2 = path.split('/');
-            if(pathQuebrado2[1] === 'pedidos'){
-                const index = pathQuebrado2[2];
-                if(method === 'GET'){ 
-                    if(index){
-                        ctx.body = listarUmPedido(index);
-                    }                 
-                }
-            }               
-        }
+                           
+        }                 
+        
     }else{
         ctx.status = 404;
         ctx.body = "Não encontrado!"
