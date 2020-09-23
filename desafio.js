@@ -132,6 +132,40 @@ const listarUmPedido = (index) => {
         return null
     }
 }
+
+const deletarPedido = (index) => {
+    const pedidos2 = listarUmPedido(index);
+    if (pedidos2) {
+        //listaDePedidos.splice(index, 1);
+        return true
+    } else {
+        return false
+    }
+};
+
+const atualizarPedido = (index, status) => {
+    if(status === "cancelado"){
+        const produto = obterUmProduto(index);
+                 
+        if(produto){
+            if(produto.quantidade > 0){
+                const produtoAtualizado = {
+                    id: produto.id, 
+                    nome: produto.nome, 
+                    quantidade: produto.quantidade - qtd, 
+                    valor: produto.valor, 
+            
+                }
+            listaDeProdutos.splice(index, 1, produtoAtualizado);
+            return "Estoque atualizado!"
+            } 
+        } 
+    } 
+    return "Não Encontrado!"
+
+}
+
+
        
 
 
@@ -175,21 +209,37 @@ server.use((ctx) => {
         }
     } else if(path.includes('/pedidos')){
         if(method === 'GET'){
-            
             const pathQuebrado2 = path.split('/');
-              const index = pathQuebrado2[2];
-              if(index){
+            const index = pathQuebrado2[2];
+            if(index){
                 ctx.body = listarUmPedido(index);
-              }else {
+            }else {
                 ctx.body = obterListaDePedidos();
-              }
-
-        } else if (method === 'POST'){
+            }
+        } else  if (method === 'POST'){
             const pedidos = adicionarPedidos(ctx.request.body);
-            ctx.body = pedidos;
-                           
-        }                 
-        
+            ctx.body = pedidos;               
+        } else if(method === 'DELETE') {
+            const pathQuebrado = path.split('/');
+            const index = pathQuebrado[2];
+            const resposta =  deletarPedido(index);
+            if (resposta === true){
+                ctx.body = "Produto deletado!"
+            } else {
+                ctx.body = "Produto não foi deletado!"
+            }      
+        }  if (method === 'PUT'){
+            const qtd = ctx.request.body.qtd;
+            if(index && qtd){
+                const resposta = atualizarQuantidade(index, qtd);
+                if(resposta){
+                    ctx.body = resposta;
+                }else {
+                    ctx.status = 404;
+                    ctx.body = "Não encontrado!"
+                }
+            }
+        }      
     }else{
         ctx.status = 404;
         ctx.body = "Não encontrado!"
